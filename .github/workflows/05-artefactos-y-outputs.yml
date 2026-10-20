@@ -1,0 +1,43 @@
+# Clase 05 · Módulo 3 · Artefactos (archivos) y outputs (valores)
+name: 05 - Artefactos y outputs
+on: workflow_dispatch
+jobs:
+  model-ci:
+    runs-on: ubuntu-latest
+    outputs:                                               # (2) el job publica el output
+      auc-test: ${{ steps.metricas.outputs.auc-test }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python run_pipeline.py
+      - name: Publicar métricas
+        id: metricas                                       # (1) el step tiene id...
+        run: |
+          AUC=$(python -c "import pandas as pd; m=pd.read_csv('outputs/train/metrics/train_test_metrics.csv'); print(round(m.loc[m['sample']=='test','auc'].iloc[0], 4))")
+          echo "AUC test: $AUC"
+          echo "auc-test=$AUC" >> "$GITHUB_OUTPUT"         # ...y escribe nombre=valor
+      - name: Guardar el modelo como artefacto
+        uses: actions/upload-artifact@v7
+        with:
+          name: modelo-riesgo
+          path: |
+            outputs/preprocess/
+            outputs/train/metrics/
+            outputs/train/feature_importance.csv
+            outputs/train/models/best_model.pickle
+
+  model-cd:
+    needs: model-ci
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el modelo
+        uses: actions/download-artifact@v8
+        with:
+          name: modelo-riesgo
+      - name: Ver lo que llegó
+        run: ls -R
+      - name: Leer el output del job anterior                # (3) otro job lo lee con needs
+        run: echo "Desplegando modelo con AUC test = ${{ needs.model-ci.outputs.auc-test }}"
