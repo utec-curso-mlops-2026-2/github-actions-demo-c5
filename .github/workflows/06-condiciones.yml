@@ -3,7 +3,7 @@
 name: 06 - Condiciones
 on: workflow_dispatch
 env:
-  FORZAR_ERROR: '${{ vars.AUC_MIN }}'
+  FORZAR_ERROR: '${{ vars.FORZAR_ERROR }}'
 jobs:
   model-ci:
     runs-on: ubuntu-latest
