@@ -1,0 +1,48 @@
+# Clase 05 · Módulo 4 · Control de flujo: if, failure(), always(), continue-on-error
+# Cambia FORZAR_ERROR a 'true' para ver qué jobs y steps se ejecutan.
+name: Condiciones
+on: workflow_dispatch
+env:
+  FORZAR_ERROR: '${{ vars.AUC_MIN }}'
+jobs:
+  model-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prueba del modelo
+        id: prueba
+        run: |
+          if [ "$FORZAR_ERROR" = "true" ]; then echo "La prueba falló"; exit 1; fi
+          echo "La prueba pasó"
+      - name: Solo si la prueba falló
+        if: failure() && steps.prueba.outcome == 'failure'
+        run: echo "Reporte de error de la prueba"
+      - name: Siempre (pase lo que pase)
+        if: always()
+        run: echo "Limpieza / resumen final"
+
+  prueba-tolerante:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prueba opcional
+        id: opcional
+        continue-on-error: true
+        run: exit 1
+      - name: outcome vs conclusion
+        run: |
+          echo "outcome    = ${{ steps.opcional.outcome }}"      # failure
+          echo "conclusion = ${{ steps.opcional.conclusion }}"   # success
+
+  model-cd:
+    needs: model-ci
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Desplegando (solo si model-ci terminó bien)"
+
+  reporte-error:
+    needs: [model-ci, model-cd]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "El workflow falló"
+          echo "Autor: ${{ github.actor }} | Commit: ${{ github.sha }}"
