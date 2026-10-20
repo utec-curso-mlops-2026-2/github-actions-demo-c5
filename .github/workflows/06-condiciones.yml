@@ -1,6 +1,6 @@
 # Clase 05 · Módulo 4 · Control de flujo: if, failure(), always(), continue-on-error
 # Cambia FORZAR_ERROR a 'true' para ver qué jobs y steps se ejecutan.
-name: Condiciones
+name: 06 - Condiciones
 on: workflow_dispatch
 env:
   FORZAR_ERROR: '${{ vars.AUC_MIN }}'
@@ -8,6 +8,8 @@ jobs:
   model-ci:
     runs-on: ubuntu-latest
     steps:
+      - name: Imprimir flag de forzar error
+        run: echo "$FORZAR_ERROR"
       - name: Prueba del modelo
         id: prueba
         run: |
