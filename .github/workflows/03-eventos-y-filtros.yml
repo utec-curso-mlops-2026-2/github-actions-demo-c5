@@ -1,7 +1,8 @@
 name: 03 - Eventos y filtros
 on:
   push:
-    branches: [main, develop]          # solo estas ramas
+    #branches: [main, develop]          # solo estas ramas
+    branches: [rama_de_ejemplo]
     paths:                              # solo si cambió alguno de estos archivos
       - 'src/**'
       - 'requirements.txt'
