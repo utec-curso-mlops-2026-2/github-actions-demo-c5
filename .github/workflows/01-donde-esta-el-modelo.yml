@@ -1,4 +1,4 @@
-name: demo-01
+name: 01 - Donde esta el modelo
 on: workflow_dispatch
 jobs:
   model-ci:
