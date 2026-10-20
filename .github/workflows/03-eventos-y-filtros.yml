@@ -1,4 +1,4 @@
-name: Eventos y filtros
+name: 03 - Eventos y filtros
 on:
   push:
     branches: [main, develop]          # solo estas ramas
