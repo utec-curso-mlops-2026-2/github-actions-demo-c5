@@ -1,0 +1,25 @@
+name: Eventos y filtros
+on:
+  push:
+    branches: [main, develop]          # solo estas ramas
+    paths:                              # solo si cambió alguno de estos archivos
+      - 'src/**'
+      - 'requirements.txt'
+  pull_request:
+    branches: [main, develop]          # PRs que apuntan a estas ramas
+    types: [opened, synchronize, reopened, closed]   # activity types
+  schedule:
+    - cron: '0 11 * * 1'               # lunes 11:00 UTC = 6:00 a.m. en Lima
+  workflow_dispatch:
+jobs:
+  quien-me-desperto:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mostrar el evento
+        run: |
+          echo "Evento: ${{ github.event_name }}"
+          echo "Rama: ${{ github.ref_name }}"
+          echo "Acción del PR (si aplica): ${{ github.event.action }}"
+      - name: Solo cuando se fusiona un PR
+        if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
+        run: echo "Este PR se fusionó, aquí iría el re-entrenamiento"
